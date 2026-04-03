@@ -6,6 +6,7 @@ import NextAuth from 'next-auth'
 
 export const { auth, handlers } = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
+  trustHost: true,
   adapter: PrismaAdapter(db) as any,
   providers: [
     GoogleProvider({
