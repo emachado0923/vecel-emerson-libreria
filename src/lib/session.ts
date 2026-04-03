@@ -6,6 +6,7 @@ export interface SessionUser {
   email: string
   name: string | null
   role: 'USER' | 'LIBRARIAN' | 'ADMIN'
+  image?: string | null
 }
 
 export async function getSession(): Promise<{ user: SessionUser } | null> {
@@ -30,6 +31,7 @@ export async function getSession(): Promise<{ user: SessionUser } | null> {
         email: nextAuthSession.user.email ?? '',
         name: nextAuthSession.user.name ?? null,
         role: (nextAuthSession.user.role as SessionUser['role']) ?? 'USER',
+        image: nextAuthSession.user.image ?? null,
       },
     }
   }

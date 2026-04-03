@@ -4,10 +4,11 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ThemeToggle } from '@/components/theme-toggle'
 import {
-  Home, Library, BookOpen, Bot, Sparkles, Settings, LogOut,
+  Home, Library, BookOpen, Bot, Sparkles, LogOut,
   ChevronLeft, ChevronRight, BarChart3, X,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import Image from 'next/image'
 
 const navItems = [
   { href: '/', label: 'Dashboard', icon: Home, roles: ['USER', 'LIBRARIAN', 'ADMIN'] },
@@ -24,12 +25,14 @@ interface SidebarProps {
   mobileOpen: boolean
   setMobileOpen: (v: boolean) => void
   userRole: string
+  userName: string | null
+  userImage: string | null
 }
 
-export function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobileOpen, userRole }: SidebarProps) {
+export function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobileOpen, userRole, userName, userImage }: SidebarProps) {
   const pathname = usePathname()
-
   const visibleItems = navItems.filter((item) => item.roles.includes(userRole))
+  const initials = userName ? userName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase() : '?'
 
   return (
     <aside
@@ -103,7 +106,36 @@ export function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobileOpen, us
       </nav>
 
       {/* Footer */}
-      <div className="border-t p-3 space-y-1 shrink-0">
+      <div className="border-t p-3 space-y-2 shrink-0">
+        {/* User info */}
+        {!collapsed && (
+          <div className="flex items-center gap-3 px-2 py-1.5 rounded-lg bg-muted/50">
+            <div className="h-8 w-8 rounded-full overflow-hidden shrink-0 bg-primary/10 flex items-center justify-center">
+              {userImage ? (
+                <Image src={userImage} alt={userName ?? 'User'} width={32} height={32} className="object-cover" />
+              ) : (
+                <span className="text-xs font-semibold text-primary">{initials}</span>
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium truncate">{userName ?? 'User'}</p>
+              <p className="text-xs text-muted-foreground capitalize">{userRole.toLowerCase()}</p>
+            </div>
+          </div>
+        )}
+
+        {collapsed && (
+          <div className="flex justify-center">
+            <div className="h-8 w-8 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center" title={userName ?? 'User'}>
+              {userImage ? (
+                <Image src={userImage} alt={userName ?? 'User'} width={32} height={32} className="object-cover" />
+              ) : (
+                <span className="text-xs font-semibold text-primary">{initials}</span>
+              )}
+            </div>
+          </div>
+        )}
+
         <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-between'}`}>
           {!collapsed && <span className="text-xs text-muted-foreground">Theme</span>}
           <ThemeToggle />

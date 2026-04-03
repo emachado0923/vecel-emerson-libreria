@@ -23,7 +23,9 @@ export const metadata: Metadata = {
 async function LayoutWithSession({ children }: { children: React.ReactNode }) {
   const session = await getSession()
   const userRole = session?.user?.role ?? 'USER'
-  return <ClientLayout userRole={userRole}>{children}</ClientLayout>
+  const userName = session?.user?.name ?? null
+  const userImage = session?.user?.image ?? null
+  return <ClientLayout userRole={userRole} userName={userName} userImage={userImage}>{children}</ClientLayout>
 }
 
 export default function RootLayout({

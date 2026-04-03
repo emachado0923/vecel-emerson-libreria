@@ -9,9 +9,11 @@ import { Menu, Library } from 'lucide-react'
 interface ClientLayoutProps {
   children: React.ReactNode
   userRole: string
+  userName: string | null
+  userImage: string | null
 }
 
-export function ClientLayout({ children, userRole }: ClientLayoutProps) {
+export function ClientLayout({ children, userRole, userName, userImage }: ClientLayoutProps) {
   const pathname = usePathname()
   const isLoginPage = pathname === '/login'
   const [collapsed, setCollapsed] = useState(false)
@@ -30,6 +32,8 @@ export function ClientLayout({ children, userRole }: ClientLayoutProps) {
           mobileOpen={mobileOpen}
           setMobileOpen={setMobileOpen}
           userRole={userRole}
+          userName={userName}
+          userImage={userImage}
         />
 
         {/* Mobile backdrop */}
