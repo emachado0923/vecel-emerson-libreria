@@ -32,7 +32,9 @@ interface SidebarProps {
 export function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobileOpen, userRole, userName, userImage }: SidebarProps) {
   const pathname = usePathname()
   const visibleItems = navItems.filter((item) => item.roles.includes(userRole))
-  const initials = userName ? userName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase() : '?'
+  const initials = userName
+    ? userName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
+    : '?'
 
   return (
     <aside
@@ -45,40 +47,47 @@ export function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobileOpen, us
       `}
     >
       {/* Header */}
-      <div className="flex h-16 items-center justify-between border-b px-4 shrink-0">
-        {!collapsed && (
-          <Link href="/" className="flex items-center gap-2 font-bold text-lg" onClick={() => setMobileOpen(false)}>
-            <Library className="h-6 w-6 text-primary shrink-0" />
-            <span>LibraryOS</span>
-          </Link>
-        )}
-        {collapsed && (
-          <Link href="/" className="mx-auto" onClick={() => setMobileOpen(false)}>
-            <Library className="h-6 w-6 text-primary" />
-          </Link>
-        )}
-
-        {/* Desktop collapse button */}
-        {!collapsed && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 hidden lg:flex"
-            onClick={() => setCollapsed(true)}
+      <div className="flex h-16 items-center border-b px-3 shrink-0">
+        {collapsed ? (
+          /* Collapsed: show expand button centered (desktop only) */
+          <button
+            onClick={() => setCollapsed(false)}
+            className="mx-auto p-2 rounded-lg hover:bg-accent transition-colors hidden lg:flex items-center justify-center"
+            title="Expand sidebar"
           >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
+            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+          </button>
+        ) : (
+          /* Expanded: show logo + collapse/close buttons */
+          <div className="flex items-center justify-between w-full">
+            <Link
+              href="/"
+              className="flex items-center gap-2 font-bold text-lg"
+              onClick={() => setMobileOpen(false)}
+            >
+              <Library className="h-6 w-6 text-primary shrink-0" />
+              <span>LibraryOS</span>
+            </Link>
+            {/* Desktop: collapse button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 hidden lg:flex"
+              onClick={() => setCollapsed(true)}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            {/* Mobile: close button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 lg:hidden"
+              onClick={() => setMobileOpen(false)}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
         )}
-
-        {/* Mobile close button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-8 w-8 lg:hidden"
-          onClick={() => setMobileOpen(false)}
-        >
-          <X className="h-4 w-4" />
-        </Button>
       </div>
 
       {/* Navigation */}
@@ -108,7 +117,7 @@ export function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobileOpen, us
       {/* Footer */}
       <div className="border-t p-3 space-y-2 shrink-0">
         {/* User info */}
-        {!collapsed && (
+        {!collapsed ? (
           <div className="flex items-center gap-3 px-2 py-1.5 rounded-lg bg-muted/50">
             <div className="h-8 w-8 rounded-full overflow-hidden shrink-0 bg-primary/10 flex items-center justify-center">
               {userImage ? (
@@ -122,11 +131,12 @@ export function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobileOpen, us
               <p className="text-xs text-muted-foreground capitalize">{userRole.toLowerCase()}</p>
             </div>
           </div>
-        )}
-
-        {collapsed && (
+        ) : (
           <div className="flex justify-center">
-            <div className="h-8 w-8 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center" title={userName ?? 'User'}>
+            <div
+              className="h-8 w-8 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center"
+              title={userName ?? 'User'}
+            >
               {userImage ? (
                 <Image src={userImage} alt={userName ?? 'User'} width={32} height={32} className="object-cover" />
               ) : (
@@ -141,23 +151,13 @@ export function Sidebar({ collapsed, setCollapsed, mobileOpen, setMobileOpen, us
           <ThemeToggle />
         </div>
 
-        {collapsed && (
-          <Button
-            variant="ghost"
-            size="icon"
-            className="w-full h-8 hidden lg:flex"
-            onClick={() => setCollapsed(false)}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        )}
-
         <Link
           href="/login"
           onClick={() => setMobileOpen(false)}
           className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all ${
             collapsed ? 'justify-center px-2' : ''
           }`}
+          title={collapsed ? 'Sign Out' : undefined}
         >
           <LogOut className="h-4 w-4 shrink-0" />
           {!collapsed && <span>Sign Out</span>}
