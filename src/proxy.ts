@@ -1,5 +1,9 @@
-import { auth } from '@/lib/auth'
+import NextAuth from 'next-auth'
+import { authConfig } from '@/lib/auth.config'
 import { NextResponse } from 'next/server'
+
+// Use edge-compatible config (no Prisma) for the proxy
+const { auth } = NextAuth(authConfig)
 
 const PUBLIC_PATHS = ['/login', '/api/auth']
 
@@ -10,7 +14,7 @@ export const proxy = auth((request) => {
     return NextResponse.next()
   }
 
-  // Allow email/password sessions (custom cookie)
+  // Allow email/password custom cookie sessions
   const hasCustomSession = request.cookies.has('session-user')
 
   if (!request.auth && !hasCustomSession) {
