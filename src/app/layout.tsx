@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ClientLayout } from "@/components/layout/client-layout";
+import { getSession } from "@/lib/session";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -19,6 +20,12 @@ export const metadata: Metadata = {
   description: "Professional library management system with AI-powered recommendations",
 };
 
+async function LayoutWithSession({ children }: { children: React.ReactNode }) {
+  const session = await getSession()
+  const userRole = session?.user?.role ?? 'USER'
+  return <ClientLayout userRole={userRole}>{children}</ClientLayout>
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -32,7 +39,7 @@ export default function RootLayout({
     >
       <body className="min-h-full" suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <ClientLayout>{children}</ClientLayout>
+          <LayoutWithSession>{children}</LayoutWithSession>
         </ThemeProvider>
       </body>
     </html>

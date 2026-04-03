@@ -1,5 +1,5 @@
 import { db } from '@/lib/db'
-import { auth } from '@/lib/auth'
+import { getSession } from '@/lib/session'
 import { redirect } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -16,15 +16,17 @@ import Link from 'next/link'
 import { format, isPast } from 'date-fns'
 
 export default async function MyLoansPage() {
-  const session = await auth()
-  
+  const session = await getSession()
+
   if (!session?.user?.id) {
     redirect('/login')
   }
 
+  const userId = session.user.id
+
   const transactions = await db.transaction.findMany({
     where: {
-      userId: session.user.id,
+      userId: userId,
       status: { in: ['ACTIVE', 'OVERDUE'] },
     },
     include: {
@@ -53,6 +55,7 @@ export default async function MyLoansPage() {
                 <Link href="/books" className={buttonVariants()}>Browse Books</Link>
               </div>
             ) : (
+              <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -94,6 +97,7 @@ export default async function MyLoansPage() {
                   })}
                 </TableBody>
               </Table>
+              </div>
             )}
           </CardContent>
         </Card>

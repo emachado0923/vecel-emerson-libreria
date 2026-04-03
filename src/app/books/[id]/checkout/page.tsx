@@ -1,10 +1,10 @@
 import { db } from '@/lib/db'
-import { auth } from '@/lib/auth'
+import { getSession } from '@/lib/session'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
-import { BookOpen, Calendar, User } from 'lucide-react'
+import { BookOpen, Calendar } from 'lucide-react'
 
 export default async function CheckoutBookPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -47,16 +47,16 @@ export default async function CheckoutBookPage({ params }: { params: Promise<{ i
 
   async function handleCheckout() {
     'use server'
-    
-    const session = await auth()
+
+    const session = await getSession()
     if (!session?.user?.id) {
       redirect('/login')
     }
-    
+
     const userId = session.user.id
-    
+
     const dueDate = new Date()
-    dueDate.setDate(dueDate.getDate() + 14) // 14 days loan period
+    dueDate.setDate(dueDate.getDate() + 14)
 
     await db.$transaction([
       db.transaction.create({
