@@ -1,28 +1,31 @@
-import NextAuth from 'next-auth'
-import { authConfig } from '@/lib/auth.config'
 import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
-// Use edge-compatible config (no Prisma) for the proxy
-const { auth } = NextAuth(authConfig)
+const PUBLIC_PATHS = ['/login', '/api/auth', '/api/books/metadata']
 
-const PUBLIC_PATHS = ['/login', '/api/auth']
-
-export const proxy = auth((request) => {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   if (PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
     return NextResponse.next()
   }
 
-  // Allow email/password custom cookie sessions
-  const hasCustomSession = request.cookies.has('session-user')
+  // Check all possible session cookie names across auth systems and environments
+  const cookies = request.cookies
+  const hasSession =
+    cookies.has('session-user') ||                        // custom email/password login
+    cookies.has('authjs.session-token') ||                // NextAuth v5 / Auth.js (HTTP)
+    cookies.has('__Secure-authjs.session-token') ||       // NextAuth v5 / Auth.js (HTTPS)
+    cookies.has('__Host-authjs.session-token') ||         // NextAuth v5 / Auth.js (strict)
+    cookies.has('next-auth.session-token') ||             // NextAuth v4 (HTTP)
+    cookies.has('__Secure-next-auth.session-token')       // NextAuth v4 (HTTPS)
 
-  if (!request.auth && !hasCustomSession) {
+  if (!hasSession) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
   return NextResponse.next()
-})
+}
 
 export const config = {
   matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
