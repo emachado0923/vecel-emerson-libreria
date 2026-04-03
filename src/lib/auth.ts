@@ -17,26 +17,30 @@ export const { auth, handlers } = NextAuth({
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
     }),
   ],
+  session: {
+    strategy: 'jwt',
+  },
   callbacks: {
-    async session({ session, user }: any) {
-      if (session.user) {
+    async jwt({ token, user }) {
+      if (user?.id) {
         const dbUser = await db.user.findUnique({
           where: { id: user.id },
-          select: { id: true, role: true, email: true, name: true, image: true },
+          select: { id: true, role: true },
         })
-        
-        if (dbUser) {
-          session.user.id = dbUser.id
-          session.user.role = dbUser.role
-        }
+        token.id = dbUser?.id ?? user.id
+        token.role = dbUser?.role ?? 'USER'
+      }
+      return token
+    },
+    async session({ session, token }) {
+      if (token) {
+        session.user.id = token.id as string
+        session.user.role = token.role as any
       }
       return session
     },
   },
   pages: {
     signIn: '/login',
-  },
-  session: {
-    strategy: 'database' as const,
   },
 })
